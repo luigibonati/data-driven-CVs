@@ -1,0 +1,88 @@
+&GLOBAL
+  PROJECT Aldol_pm6_R
+  RUN_TYPE MD
+  PRINT_LEVEL SILENT
+&END GLOBAL
+
+!&EXT_RESTART
+!RESTART_FILE_NAME Aldol_pm6_R-1.restart
+!&END
+
+&MOTION
+  &MD
+    ENSEMBLE NVT
+    STEPS 20000000
+    TIMESTEP 0.5
+    TEMPERATURE 300
+   &THERMOSTAT
+        &CSVR
+        TIMECON 100
+        &END
+   &END THERMOSTAT
+  &END MD
+  &PRINT
+     &VELOCITIES OFF
+     &END
+     &FORCES
+      &EACH
+         MD 4000
+      &END
+     &END
+     &TRAJECTORY
+      &EACH
+         MD 20
+      &END
+     &END
+     &RESTART
+      &EACH
+          MD 1000
+      &END
+     &END
+     &RESTART_HISTORY
+       &EACH
+          MD 50000
+       &END
+     &END
+  &END PRINT
+
+ &FREE_ENERGY
+    &METADYN
+      USE_PLUMED .TRUE.
+      PLUMED_INPUT_FILE ./plumed.dat
+    &END METADYN
+  &END FREE_ENERGY
+
+&END MOTION
+
+&FORCE_EVAL
+  METHOD Quickstep
+  &DFT
+    &QS
+      METHOD PM6
+    &END QS
+    &SCF
+    SCF_GUESS ATOMIC
+ #   SCF_GUESS RESTART
+    &END SCF
+  &END DFT
+  &SUBSYS
+    &CELL
+      ABC 15.0 15.0 15.0
+      PERIODIC NONE
+    &END CELL
+    &COORD
+  C        -0.4380529066        1.0289817184        2.4218640806
+  H        -0.8258218827       -0.0042005318        2.5547137238
+  H         0.6310002384        0.9815436318        2.6588469857
+  C        -0.7536249062        1.4649971834        0.9661402699
+  H        -0.4400493227        0.6859268302        0.2052006415
+  O        -1.3955297332        2.4535993157        0.7293392173
+  H        -2.5800939393        1.4446323568        4.1921888754
+  C        -0.9189573958        2.0559768551        3.4418190661
+  H        -1.5189990031        2.8768450679        3.0258842458
+  H        -0.1063157930        2.5344538387        3.9092283136
+  O        -1.7006634559        1.5032705498        4.4766189541
+    &END COORD
+  &END SUBSYS
+&END FORCE_EVAL
+
