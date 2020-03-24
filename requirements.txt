@@ -1,0 +1,2 @@
+The code requires PLUMED compiled with LibTorch (ver.<=1.2) and the model has to be trained with the same PyTorch version. 
+We are working to support the latest stable version of PyTorch and to release the interface in PLUMED.
