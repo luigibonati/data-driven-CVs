@@ -1,3 +1,4 @@
+#ifdef __PLUMED_HAS_LIBTORCH
 /* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Copyright (c) 2011-2018 The plumed team
    (see the PEOPLE file at the root of the distribution for a list of names)
@@ -36,7 +37,20 @@ std::vector<float> tensor_to_vector(const torch::Tensor& x) {
 namespace PLMD {
 namespace function {
 
-//+PLUMEDOC FUNCTION AUTOENCODER
+//+PLUMEDOC FUNCTION PYTORCH MODEL
+/*
+Load a model trained with Pytorch. The derivatives are set using native backpropagation in Pytorch.
+
+\par Examples
+Define a model that takes as inputs two distances d1 and d2 
+
+\plumedfile
+model: PYTORCH_MODEL MODEL=model.pt ARG=d1,d2
+\endplumedfile
+
+The N nodes of the neural network are saved as "model.node-0", "model.node-1", ..., "model.node-(N-1)".
+
+*/
 //+ENDPLUMEDOC
 
 
@@ -45,8 +59,7 @@ class PytorchModel :
 {
   unsigned _n_in;
   unsigned _n_out;
-  std::shared_ptr<torch::jit::script::Module> _model;
-  float mean_, range_;
+  torch::jit::script::Module _model;
 public:
   explicit PytorchModel(const ActionOptions&);
   void calculate();
@@ -60,30 +73,27 @@ void PytorchModel::registerKeywords(Keywords& keys) {
   Function::registerKeywords(keys);
   keys.use("ARG");
   keys.add("optional","MODEL","filename of the trained model"); 
-  keys.add("optional","MIN","min of the inputs");
-  keys.add("optional","MAX","max of the inputs"); 
+  keys.addOutputComponent("node", "default", "NN outputs"); 
 }
 
 PytorchModel::PytorchModel(const ActionOptions&ao):
   Action(ao),
   Function(ao)
-  //powers(getNumberOfArguments(),1.0)
 {
+  //number of inputs of the model
   _n_in=getNumberOfArguments();
 
+  //parse model name
   std::string fname="model.pt";
-  parse("MODEL",fname);  
-
-  //std::ifstream in(fname, std::ios_base::binary);
-
-  _model = torch::jit::load(fname); //or in
-  assert(_model != nullptr);
-
-  float min=-1.,max=1.;
-  parse("MIN",min);
-  parse("MAX",max);
-  mean_=(max+min)/2.;
-  range_=(max-min)/2.;
+  parse("MODEL",fname); 
+ 
+  //deserialize the model from file
+  try {
+    _model = torch::jit::load(fname);
+  }
+  catch (const c10::Error& e) {
+    error("Cannot find Pytorch model.");    
+  }
 
   checkRead();
 
@@ -93,19 +103,21 @@ PytorchModel::PytorchModel(const ActionOptions&ao):
   torch::Tensor single_input = torch::tensor(input_test).view({1,_n_in});  
   std::vector<torch::jit::IValue> inputs;
   inputs.push_back( single_input );
-  auto output = _model->forward( inputs ).toTensor();
+  torch::Tensor output = _model.forward( inputs ).toTensor(); 
   vector<float> cvs = tensor_to_vector (output);
   _n_out=cvs.size();
 
-  //log.printf("  without periodic boundary conditions\n");
+  //create components
   for(unsigned j=0; j<_n_out; j++){
-    addComponentWithDerivatives( std::to_string(j) ); 
-    componentIsNotPeriodic( std::to_string(j) );
+    string name_comp = "node-"+std::to_string(j);
+    addComponentWithDerivatives( name_comp );
+    componentIsNotPeriodic( name_comp );
   }
-
-  log.printf("Pytorch Model Loaded: %s\n",fname);
-  log.printf("Number of input: %d\n",_n_in); 
-  log.printf("Number of outputs: %d\n",_n_out); 
+ 
+  //print log
+  //log.printf("Pytorch Model Loaded: %s \n",fname);
+  log.printf("Number of input: %d \n",_n_in); 
+  log.printf("Number of outputs: %d \n",_n_out); 
 
 }
 
@@ -114,38 +126,30 @@ void PytorchModel::calculate() {
   //retrieve arguments
   vector<float> current_S(_n_in);
   for(unsigned i=0; i<_n_in; i++)
-    current_S[i]=(getArgument(i)-mean_)/range_;
+    current_S[i]=getArgument(i);
   //convert to tensor
   torch::Tensor input_S = torch::tensor(current_S).view({1,_n_in});
   input_S.set_requires_grad(true);
   //convert to Ivalue
   std::vector<torch::jit::IValue> inputs;
   inputs.push_back( input_S );
-  //encode
-  auto output = _model->forward( inputs ).toTensor();
+  //calculate output
+  torch::Tensor output = _model.forward( inputs ).toTensor();
+  //backpropagation
   output.backward();
-
+  //convert to vector
   vector<float> cvs = tensor_to_vector (output);
   vector<float> der = tensor_to_vector (input_S.grad() );
-
+  //set derivatives
   for(unsigned i=0; i<_n_in; i++)
     setDerivative(i,der[i]);
-
-  for(unsigned j=0; j<_n_out; j++)
-    getPntrToComponent(std::to_string(j))->set(cvs[j]);
-  
-/*
-  double combine=0.0;
-  for(unsigned i=0; i<coefficients.size(); ++i) {
-    double cv = (getArgument(i)-parameters[i]);
-    combine+=coefficients[i]*pow(cv,powers[i]);
-    setDerivative(i,coefficients[i]*powers[i]*pow(cv,powers[i]-1.0));
-  };
-  setValue(combine);
-*/
+  //set CVs values
+  for(unsigned j=0; j<_n_out; j++){
+    string name_comp = "node-"+std::to_string(j);
+    getPntrToComponent(name_comp)->set(cvs[j]);
+  }
 }
 
 }
 }
-
-
+#endif
