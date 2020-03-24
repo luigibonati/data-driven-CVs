@@ -1,4 +1,3 @@
-#ifdef __PLUMED_HAS_LIBTORCH
 /* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Copyright (c) 2011-2018 The plumed team
    (see the PEOPLE file at the root of the distribution for a list of names)
@@ -152,4 +151,3 @@ void PytorchModel::calculate() {
 
 }
 }
-#endif
