@@ -1,5 +1,5 @@
 # Data-driven collective variables for enhanced sampling
-Supporting material for the paper [**Data-driven collective variables for enhanced sampling**](https://arxiv.org/abs/2002.06562) by _Bonati, Rizzi and Parrinello_ (2019).
+Code and inputs file related to the paper [**Data-driven collective variables for enhanced sampling**](https://arxiv.org/abs/2002.06562) by _Bonati, Rizzi and Parrinello_ (2019).
 
 #### Requirements
 - Pytorch and LibTorch (v >=1.2)
