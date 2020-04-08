@@ -1,9 +1,8 @@
 # Data-Driven Collective Variables for Enhanced Sampling
+Code and inputs file related to the paper [**Data-driven collective variables for enhanced sampling**](https://pubs.acs.org/doi/10.1021/acs.jpclett.0c00535) by _Bonati, Rizzi and Parrinello_, J. Phys. Chem. Lett. 11, 2998-3004 (2020).
 <p align="center">
   <img height="350" src="https://raw.githubusercontent.com/luigibonati/luigibonati.github.io/master/images/jpcl2020.png">
 </p>
-
-Code and inputs file related to the paper [**Data-driven collective variables for enhanced sampling**](https://pubs.acs.org/doi/10.1021/acs.jpclett.0c00535) by _Bonati, Rizzi and Parrinello_, J. Phys. Chem. Lett. 11, 2998-3004 (2020).
 
 #### Requirements
 - Pytorch and LibTorch (v >=1.2)
