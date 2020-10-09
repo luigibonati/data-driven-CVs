@@ -2,7 +2,6 @@
 
 #LOAD FILES (or include them in PLUMED)
 LOAD FILE=../../code/PytorchModel.cpp
-LOAD FILE=../../code/OPESwt.cpp
 
 #DEFINE INPUTS: DISTANCES
 d1:  DISTANCE ATOMS=2,5
@@ -55,13 +54,13 @@ d45:  DISTANCE ATOMS=17,19
 deep: PYTORCH_MODEL MODEL=../2_training_model/model.pt ARG=d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24,d25,d26,d27,d28,d29,d30,d31,d32,d33,d34,d35,d36,d37,d38,d39,d40,d41,d42,d43,d44,d45
 
 #DEFINE OPES CALCULATION
-OPES_WT ...
+OPES_METAD ...
   LABEL=opes
   ARG=deep.node-0
   PACE=500
   SIGMA=0.025
   BARRIER=30
-... OPES_WT
+... OPES_METAD
 
 #MONITOR DIHEDRAL ANGLES
 phi: TORSION ATOMS=5,7,9,15	
