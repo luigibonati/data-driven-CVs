@@ -97,7 +97,7 @@ PytorchModel::PytorchModel(const ActionOptions&ao):
   checkRead();
 
   //check the dimension of the output
-  log.printf("Checking input dimension:\n");
+  log.printf("Checking output dimension:\n");
   std::vector<float> input_test (_n_in);
   torch::Tensor single_input = torch::tensor(input_test).view({1,_n_in});  
   std::vector<torch::jit::IValue> inputs;
@@ -133,21 +133,30 @@ void PytorchModel::calculate() {
   std::vector<torch::jit::IValue> inputs;
   inputs.push_back( input_S );
   //calculate output
-  torch::Tensor output = _model.forward( inputs ).toTensor();
-  //backpropagation
-  output.backward();
-  //convert to vector
+  torch::Tensor output = _model.forward( inputs ).toTensor();  
+  //set CV values
   vector<float> cvs = tensor_to_vector (output);
-  vector<float> der = tensor_to_vector (input_S.grad() );
-  //set derivatives
-  for(unsigned i=0; i<_n_in; i++)
-    setDerivative(i,der[i]);
-  //set CVs values
   for(unsigned j=0; j<_n_out; j++){
     string name_comp = "node-"+std::to_string(j);
     getPntrToComponent(name_comp)->set(cvs[j]);
   }
-}
+  //derivatives
+  for(unsigned j=0; j<_n_out; j++){
+   //backpropagation
+    output[0][j].backward();
+    //convert to vector
+    vector<float> der = tensor_to_vector (input_S.grad() );
+    string name_comp = "node-"+std::to_string(j);
+    //set derivatives of component j
+    for(unsigned i=0; i<_n_in; i++)
+      setDerivative( getPntrToComponent(name_comp) ,i,der[i]);
+    //reset gradients
+    input_S.grad().zero_();
+    //for(unsigned i=0; i<_n_in; i++)
+    //	input_S.grad()[0][i] = 0.;
+ 
+  }
 
+}
 }
 }
