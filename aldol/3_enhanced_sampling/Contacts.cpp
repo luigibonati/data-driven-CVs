@@ -19,8 +19,8 @@
    You should have received a copy of the GNU Lesser General Public License
    along with plumed.  If not, see <http://www.gnu.org/licenses/>.
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-#include "Colvar.h"
-#include "ActionRegister.h"
+#include "core/Colvar.h"
+#include "core/ActionRegister.h"
 #include "tools/Pbc.h"
 
 #include <string>
@@ -74,6 +74,7 @@ void Contacts::registerKeywords( Keywords& keys ) {
   keys.add("optional","SWITCH","This keyword is used if you want to employ an alternative to the continuous swiching function defined above. "
                                "The following provides information on the \\ref switchingfunction that are available. "
                                "When this keyword is present you no longer need the NN, MM, D_0 and R_0 keywords.");
+  keys.addOutputComponent("c", "default", "contacts");
 }
 
 Contacts::Contacts(const ActionOptions&ao):
@@ -153,7 +154,7 @@ Contacts::Contacts(const ActionOptions&ao):
   if(components) {
      for(int i=0; i<num_dist; i++)
      {
-        auto label = std::to_string(i);
+        auto label = "c-"+std::to_string(i);
         addComponentWithDerivatives(label); componentIsNotPeriodic(label);
      }
   }
@@ -247,7 +248,7 @@ void Contacts::calculate() {
                //if(reorderon) auto label = std::to_string(indicesnew[ind]);   //REORDERED
                //auto label = std::to_string(indicesnew[ind]);   //REORDERED
                if(reorderon){
-                  auto label = std::to_string(indicesnew[ind]);   //REORDERED
+                  auto label = "c-"+std::to_string(indicesnew[ind]);   //REORDERED
 
                   Value* val=getPntrToComponent(label);
                   setAtomsDerivatives (val,i,-invdist[ind]*dist[ind]*df2);
@@ -256,7 +257,7 @@ void Contacts::calculate() {
                   val->set(sw);
                }
                else{ 
-                  auto label = std::to_string(ind);               //NON REORDERED
+                  auto label = "c-"+std::to_string(ind);               //NON REORDERED
 
                   Value* val=getPntrToComponent(label);
                   setAtomsDerivatives (val,i,-invdist[ind]*dist[ind]*df2);
@@ -285,7 +286,7 @@ void Contacts::calculate() {
                //if(reorderon) auto label = std::to_string(indicesnew[ind]);   //REORDERED
                //auto label = std::to_string(indicesnew[ind]);   //REORDERED
                if(reorderon){
-                  auto label = std::to_string(indicesnew[ind]);   //REORDERED
+                  auto label = "c-"+std::to_string(indicesnew[ind]);   //REORDERED
 
                   Value* val=getPntrToComponent(label);
                   setAtomsDerivatives (val,i,-invdist[ind]*dist[ind]*df2);
@@ -294,7 +295,7 @@ void Contacts::calculate() {
                   val->set(sw);
                }
                else{ 
-                  auto label = std::to_string(ind);               //NON REORDERED
+                  auto label = "c-"+std::to_string(ind);               //NON REORDERED
 
                   Value* val=getPntrToComponent(label);
                   setAtomsDerivatives (val,i,-invdist[ind]*dist[ind]*df2);
