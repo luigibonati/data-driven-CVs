@@ -5,7 +5,7 @@ Code and inputs file related to the paper [**Data-driven collective variables fo
 </p>
 
 #### Requirements
-- Pytorch and LibTorch (v >=1.2)
+- Pytorch and LibTorch (v == 1.4)
 - PLUMED2
 
 #### Tutorial
