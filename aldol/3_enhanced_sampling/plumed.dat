@@ -3,8 +3,7 @@
 #UNITS
 UNITS LENGTH=A  
 
-#LOAD FILES (or include them in PLUMED)
-LOAD FILE=../../code/PytorchModel.cpp
+#LOAD FILES
 LOAD FILE=Contacts.cpp
 
 #DEFINE GROUP OF ATOMS
@@ -20,7 +19,7 @@ ch2: CONTACTS GROUPA=C GROUPB=H SWITCH={RATIONAL D_0=0.0 R_0=1.2 NN=6 MM=8}
 oh2: CONTACTS GROUPA=O GROUPB=H SWITCH={RATIONAL D_0=0.0 R_0=1.2 NN=6 MM=8} 
 
 #LOAD PYTHORCH MODEL
-auto: PYTORCH_MODEL MODEL=../2_training_model/model.pt ARG=cc2.*,oo2.*,co2.*,ch2.*,oh2.*
+auto: PYTORCH_MODEL FILE=../2_training_model/model.pt ARG=cc2.*,oo2.*,co2.*,ch2.*,oh2.*
 NNcube: MATHEVAL ARG=auto.node-0 FUNC=x+x^3 PERIODIC=NO
 
 #DEFINE WALLS WALLS
