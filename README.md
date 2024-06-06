@@ -6,6 +6,12 @@
 [![plumID:20.004](https://img.shields.io/badge/plumID-20.004-blue)](https://www.plumed-nest.org/eggs/20/004/)
 [![MaterialsCloud](https://img.shields.io/badge/MaterialsCloud-2020.0035-lightgrey)](https://doi.org/10.24435/materialscloud:2020.0035/v1)
 
+> [!IMPORTANT]
+> This repository is kept as supporting material for the manuscript, but it is no longer updated. Check out the [mlcolvar](https://mlcolvar.readthedocs.io)  library for data-driven CVs, where you can find up-to-date tutorials and examples.
+> 
+> [<img src="https://raw.githubusercontent.com/luigibonati/mlcolvar/main/docs/images/logo_name_black_big.png" width="200" />](https://mlcolvar.readthedocs.io)
+
+
 This repository contains:
 1. the code necessary to train and use a neural-network collective variable optimized with Fisher's discriminant analysis 
 2. input file to reproduce the simulations reported in the paper
